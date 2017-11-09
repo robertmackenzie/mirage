@@ -6,6 +6,7 @@ module Mirage
   class Server < Sinatra::Base
 
     REQUESTS = {}
+    COUNTS = Hash.new(0)
 
     helpers Helpers::TemplateRequirements, Helpers::HttpHeaders
 
@@ -36,6 +37,7 @@ module Mirage
 
         synchronize do
           REQUESTS[record.response_id] = request.dup
+          COUNTS[record.response_id] += 1
         end
 
 
@@ -104,6 +106,12 @@ module Mirage
       else
         404
       end
+    end
+
+    get '/requests/:id/count' do
+      content_type :json
+
+      { count: COUNTS[response_id] }.to_json
     end
 
     get '/' do
