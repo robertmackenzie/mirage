@@ -98,11 +98,38 @@ describe "Mirage Server" do
 
 
   describe "operations" do
+    describe 'deleting counts' do
+      it 'should delete all counts' do
+        response_id = JSON.parse(put('/templates/greeting', { :response => { :body => Base64.encode64("level2") } }.to_json).body)['id']
+        get('/responses/greeting')
+        get('/responses/greeting')
+        get('/responses/greeting')
+
+        another_response_id = JSON.parse(put('/templates/another-greeting', { :response => { :body => Base64.encode64("level2") } }.to_json).body)['id']
+        get('/responses/another-greeting')
+
+        delete('/requests/count')
+
+        JSON.parse(get("/requests/#{response_id}/count").body)['count'].should == 0
+        JSON.parse(get("/requests/#{another_response_id}/count").body)['count'].should == 0
+      end
+
+      it 'should delete a specific count' do
+        response_id = JSON.parse(put('/templates/greeting', { :response => { :body => Base64.encode64("level2") } }.to_json).body)['id']
+        get('/responses/greeting')
+        get('/responses/greeting')
+        get('/responses/greeting')
+
+        delete("/requests/#{response_id}/count")
+
+        JSON.parse(get("/requests/#{response_id}/count").body)['count'].should == 0
+      end
+    end
+
     describe 'retrieving counts' do
 
       before :each do
-        # reset route
-        put('/', {}.to_json)
+        delete('/requests/count')
       end
 
       context 'no request has been made' do
@@ -112,13 +139,13 @@ describe "Mirage Server" do
         end
       end
 
-      context 'a request have been made' do
-          it 'should return the count' do
-            response_id = JSON.parse(put('/templates/greeting', { :response => { :body => Base64.encode64("level2") } }.to_json).body)['id']
-            get('/responses/greeting')
+      context 'a request has been made' do
+        it 'should return the count' do
+          response_id = JSON.parse(put('/templates/greeting', { :response => { :body => Base64.encode64("level2") } }.to_json).body)['id']
+          get('/responses/greeting')
 
-            JSON.parse(get("/requests/#{response_id}/count").body)['count'].should == 1
-          end
+          JSON.parse(get("/requests/#{response_id}/count").body)['count'].should == 1
+        end
       end
 
       context 'multiple requests have been made' do

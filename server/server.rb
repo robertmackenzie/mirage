@@ -53,6 +53,7 @@ module Mirage
       synchronize do
         MockResponse.delete(response_id)
         REQUESTS.delete(response_id)
+        COUNTS.delete(response_id)
       end
 
       200
@@ -66,6 +67,12 @@ module Mirage
       200
     end
 
+    delete '/requests/count' do
+      synchronize do
+        COUNTS.clear
+      end
+    end
+
     delete '/requests/:id' do
       synchronize do
         REQUESTS.delete(response_id)
@@ -77,6 +84,7 @@ module Mirage
     delete '/templates' do
       synchronize do
         REQUESTS.clear
+        COUNTS.clear
         MockResponse.delete_all
       end
 
@@ -114,6 +122,12 @@ module Mirage
       { count: COUNTS[response_id] }.to_json
     end
 
+    delete '/requests/:id/count' do
+      synchronize do
+        COUNTS.delete(response_id)
+      end
+    end
+
     get '/' do
       haml :index
     end
@@ -147,7 +161,6 @@ module Mirage
     put '/' do
       synchronize do
         MockResponse.revert
-        COUNTS.clear
       end
 
       200
