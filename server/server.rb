@@ -147,6 +147,7 @@ module Mirage
     put '/' do
       synchronize do
         MockResponse.revert
+        COUNTS.clear
       end
 
       200

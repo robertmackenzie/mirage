@@ -98,6 +98,41 @@ describe "Mirage Server" do
 
 
   describe "operations" do
+    describe 'retrieving counts' do
+
+      before :each do
+        # reset route
+        put('/', {}.to_json)
+      end
+
+      context 'no request has been made' do
+        it 'should return the count' do
+          response_id = JSON.parse(put('/templates/greeting', { :response => { :body => Base64.encode64("level2") } }.to_json).body)['id']
+          JSON.parse(get("/requests/#{response_id}/count").body)['count'].should == 0
+        end
+      end
+
+      context 'a request have been made' do
+          it 'should return the count' do
+            response_id = JSON.parse(put('/templates/greeting', { :response => { :body => Base64.encode64("level2") } }.to_json).body)['id']
+            get('/responses/greeting')
+
+            JSON.parse(get("/requests/#{response_id}/count").body)['count'].should == 1
+          end
+      end
+
+      context 'multiple requests have been made' do
+        it 'should return the count' do
+          response_id = JSON.parse(put('/templates/greeting', { :response => { :body => Base64.encode64("level2") } }.to_json).body)['id']
+          get('/responses/greeting')
+          get('/responses/greeting')
+          get('/responses/greeting')
+
+          JSON.parse(get("/requests/#{response_id}/count").body)['count'].should == 3
+        end
+      end
+    end
+
     describe 'resolving responses' do
       it 'should return the default response' do
         put('/templates/level1', {:response => {:body => Base64.encode64("level1")}}.to_json)
@@ -145,7 +180,6 @@ describe "Mirage Server" do
       request_data['id'].should == "http://example.org/requests/#{response_id}"
 
     end
-
 
     it 'should delete a template' do
       response_id = JSON.parse(put('/templates/greeting', {:response => {:body => Base64.encode64("hello")}}.to_json).body)['id']

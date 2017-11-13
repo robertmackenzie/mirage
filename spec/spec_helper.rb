@@ -6,6 +6,8 @@ require 'mirage/client'
 require 'rspec'
 require 'json'
 require 'base64'
+require 'extensions/object'
+require 'extensions/hash'
 
 module JsonHelpers
   def convert_keys_to_strings hash
